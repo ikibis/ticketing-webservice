@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Ticketing Service</title>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/scripts.js"></script>
+<form action="/payment.html" method="get">
+    <div class="container">
+        <div class="row pt-3">
+            <h4>
+                Бронирование мест на сеанс
+            </h4>
+
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th style="width: 120px;">Ряд / Место</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <script>$(fillHall());</script>
+                </tr>
+                </tbody>
+            </table>
+            <div class="row float-right">
+                <button type="action" class="btn btn-success">Оплатить</button>
+            </div>
+
+        </div>
+    </div>
+</form>
+</body>
+</html>
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        function validate() {
+            var result = true;
+            var name = $('#name').val();
+            var lastname = $('#lastname').val();
+            var selectedOption = $('[name="sex"]:checked').val();
+            var desc = $('#comment').val();
+            if (name == '') {
+                result = false;
+                alert('Please, enter your Firstname');
+            }
+            if (lastname == '') {
+                result = false;
+                alert('Please, enter your LastName');
+            }
+            if (selectedOption == null) {
+                result = false;
+                alert('Please, enter your Sex');
+            }
+            if (desc == '') {
+                result = false;
+                alert('Please, enter your Description');
+            }
+            return result;
+        }
+
+        function addRow() {
+            if (validate()) {
+                var name = $('#name').val();
+                var lastname = $('#lastname').val();
+                var sex = $('[name="sex"]:checked').val();
+                var description = $('#comment').val();
+                $('#dynamic tr:last').after('<tr>' +
+                    '<td>' + name + '</td>' +
+                    '<td>' + lastname + '</td>' +
+                    '<td>' + sex + '</td>' +
+                    '<td>' + description + '</td>' +
+                    '</tr>');
+            }
+        }
+
+        function createUser() {
+            var user = new Object;
+            var name = $('#name').val();
+            var lastName = $('#lastname').val();
+            var sex = $('[name="sex"]:checked').val();
+            var description = $('#comment').val();
+            user.name = name;
+            user.lastName = lastName;
+            user.sex = sex;
+            user.description = description;
+            if (validate()) {
+                $.ajax({
+                    url: "/json",
+                    method: "POST",
+                    complete: addRow(),
+                    data: JSON.stringify(user),
+                    dataType: 'json'
+                });
+            }
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <h2>Users form</h2>
+    <form action="/json" method="post">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" placeholder="Enter your Firstname">
+        </div>
+        <div class="form-group">
+            <label for="lastname">LastName:</label>
+            <input type="text" class="form-control" id="lastname" placeholder="Enter your LastName">
+        </div>
+
+        <div class="form-group">
+            <label class="radio-inline">
+                <input type="radio" name="sex" value="Male">Male</label>
+            <label class="radio-inline">
+                <input type="radio" name="sex" value="Female">Female</label>
+        </div>
+        <div class="form-group">
+            <label for="comment">Description:</label>
+            <textarea class="form-control" rows="5" id="comment"></textarea>
+        </div>
+        <button type="button" class="btn btn-default" onclick="return createUser()">Add User
+        </button>
+    </form>
+</div>
+
+<div class="container">
+    <h2>Users Table</h2>
+    <table class="table table-bordered" id="dynamic">
+        <thead>
+        <tr>
+            <th>Firstname</th>
+            <th>Lastname</th>
+            <th>Sex</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>-->
