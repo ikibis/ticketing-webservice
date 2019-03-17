@@ -14,12 +14,12 @@
         <url-pattern>/hall</url-pattern>
     </servlet-mapping>
     <servlet>
-        <servlet-name>UserServlet</servlet-name>
-        <servlet-class>ru.kibis.ticketing.controller.UserServlet</servlet-class>
+        <servlet-name>PaymentServlet</servlet-name>
+        <servlet-class>ru.kibis.ticketing.controller.PaymentServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>UserServlet</servlet-name>
-        <url-pattern>/user</url-pattern>
+        <servlet-name>PaymentServlet</servlet-name>
+        <url-pattern>/payment</url-pattern>
     </servlet-mapping>
 </web-app>
 

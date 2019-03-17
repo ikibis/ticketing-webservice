@@ -93,4 +93,26 @@ public class DbStore {
         }
         return places;
     }
+
+    public Hall getPlaceById(int id) {
+        Hall result = null;
+        try (Connection connection = SOURCE.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "select * from hall where id = ?;"
+             )) {
+            st.setInt(1, id);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                result = new Hall(
+                        rs.getInt("id"),
+                        rs.getInt("row"),
+                        rs.getInt("place"),
+                        rs.getBoolean("availability")
+                );
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return result;
+    }
 }

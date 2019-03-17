@@ -28,4 +28,8 @@ public class ValidateService {
     public List<Hall> findPlaces() {
         return memory.findPlaces();
     }
+
+    public Hall getPlaceById(int id) {
+        return memory.getPlaceById(id);
+    }
 }
