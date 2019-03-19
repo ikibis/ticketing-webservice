@@ -44,11 +44,33 @@ function getPlace(id) {
     $.ajax({
         url: '/payment',
         method: 'GET',
-        data: "place_id=" + id,
+        data: "id=" + id,
         complete: function (response) {
             var place = JSON.parse(response.responseText);
             var result = "Вы выбрали ряд " + place.row + " место " + place.place + ", Сумма : 500 рублей.";
             $('#place_details').html(result);
+        }
+    });
+}
+
+function booking(id, user_name, user_phone) {
+    $.ajax({
+        url: '/payment',
+        method: 'POST',
+        data: {
+            id: id,
+            name: user_name,
+            phone: user_phone
+        },
+        complete: function (response) {
+            var resp = JSON.parse(response.responseText);
+            alert(resp.result);
+            /*if (resp.result === 'true') {
+                alert('Спасибо, ваше место забронировано!');
+            } else {
+                alert('Извините, но это место уже успел кто-то занять!');
+            }*/
+            location.replace("/index.html");
         }
     });
 }

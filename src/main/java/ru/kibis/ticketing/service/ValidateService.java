@@ -1,7 +1,6 @@
 package ru.kibis.ticketing.service;
 
 import ru.kibis.ticketing.model.Hall;
-import ru.kibis.ticketing.model.User;
 import ru.kibis.ticketing.persistence.DbStore;
 
 import java.util.List;
@@ -17,12 +16,8 @@ public class ValidateService {
         return Holder.INSTANCE;
     }
 
-    public boolean booking(User user) {
-        boolean result = false;
-        if (user.getName() != null && user.getPhoneNumber() != 0) {
-            result = memory.booking(user);
-        }
-        return result;
+    public boolean booking(int placeId, String name, String phone) {
+        return memory.booking(placeId, name, phone);
     }
 
     public List<Hall> findPlaces() {

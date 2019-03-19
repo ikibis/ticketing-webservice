@@ -3,12 +3,12 @@ package ru.kibis.ticketing.model;
 public class User {
     private String name;
     private int phoneNumber;
-    private Hall place;
+    private int placeId;
 
-    public User(String name, int phoneNumber, Hall place) {
+    public User(String name, int phoneNumber, int placeId) {
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.place = place;
+        this.placeId = placeId;
     }
 
     public String getName() {
@@ -27,8 +27,7 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public Hall getPlace() {
-        return place;
+    public int getPlaceId() {
+        return placeId;
     }
-
 }

@@ -4,12 +4,9 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.kibis.ticketing.model.Hall;
-import ru.kibis.ticketing.model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -45,7 +42,7 @@ public class DbStore {
                              + "create table if not exists movie_viewers ( "
                              + "id serial primary key not null, "
                              + "name varchar(200), "
-                             + "phone smallint, "
+                             + "phone varchar, "
                              + "place_id smallint);"
              )) {
             st.executeUpdate();
@@ -54,20 +51,56 @@ public class DbStore {
         }
     }
 
-    public boolean booking(User user) {
+    public boolean booking(int placeId, String name, String phone) {
         boolean result = false;
-        try (Connection connection = SOURCE.getConnection();
-             PreparedStatement st = connection.prepareStatement(
-                     "insert into movie_viewers(name, phone, place_id) values(?, ?, ?);"
-                             + "update hall set availability = false where id = ?;"
-             )) {
-            st.setString(1, user.getName());
-            st.setInt(2, user.getPhoneNumber());
-            st.setInt(3, user.getPlace().getPlaceId());
-            st.setInt(4, user.getPlace().getPlaceId());
-            st.executeUpdate();
-            result = true;
+        Savepoint savePoint = null;
+        try (Connection connection = SOURCE.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement checkStatement = connection.prepareStatement(
+                    "select availability from hall where id = ?;"
+            );
+                 PreparedStatement insertStatement = connection.prepareStatement(
+                         "insert into movie_viewers(name, phone, place_id) values(?, ?, ?);"
+                 );
+                 PreparedStatement updateStatement = connection.prepareStatement(
+                         "update hall set availability = false where id = ?;"
+                 )
+            ) {
+                savePoint = connection.setSavepoint();
+                checkStatement.setInt(1, placeId);
+
+                insertStatement.setString(1, name);
+                insertStatement.setString(2, phone);
+                insertStatement.setInt(3, placeId);
+                insertStatement.executeUpdate();
+
+                updateStatement.setInt(1, placeId);
+                updateStatement.executeUpdate();
+
+                connection.commit();
+                ResultSet rs = checkStatement.executeQuery();
+                rs.next();
+                boolean response = rs.getBoolean("availability");
+                System.out.println(response);
+                if (response) {
+                    result = true;
+                    connection.setAutoCommit(true);
+                } else {
+                    result = false;
+                    connection.setAutoCommit(true);
+                    connection.rollback(savePoint);
+                }
+            } catch (SQLException e) {
+                result = false;
+                try {
+                    connection.setAutoCommit(true);
+                    connection.rollback(savePoint);
+                } catch (SQLException error) {
+                    LOGGER.error(error.getMessage(), error);
+                }
+            }
         } catch (SQLException e) {
+            result = false;
             LOGGER.error(e.getMessage(), e);
         }
         return result;
@@ -88,6 +121,10 @@ public class DbStore {
                         rs.getBoolean("availability")
                 ));
             }
+            Comparator<Hall> comp = (Hall a, Hall b) -> {
+                return a.getPlaceId() - b.getPlaceId();
+            };
+            places.sort(comp);
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         }
