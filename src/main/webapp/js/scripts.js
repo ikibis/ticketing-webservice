@@ -1,6 +1,6 @@
 function validate() {
     var result = true;
-    var name = $('#name').val();
+    var name = $('#username').val();
     var phone = $('#phone').val();
     if (name == '') {
         result = false;
@@ -27,11 +27,16 @@ function fillHall() {
                 var row = hall[i].row;
                 var place = hall[i].place;
                 var availability = hall[i].availability;
+                var st = "";
                 if (row != current_row) {
                     result += "</tr><tr><th>" + row + "</th>";
                     current_row = row;
                 }
-                result += "<td><input type = \"radio\" name = \"place\" value =\"" + id + "\">"
+                if (availability == "Busy") {
+                    st = "disabled";
+                }
+                console.log(st);
+                result += "<td><input type = \"radio\" name = \"place\" value =\"" + id + "\"" + st + ">"
                     + "Ряд " + row + ", Место " + place + " " + availability + "</td>";
             }
             result += "</tr></tbody>";
@@ -54,23 +59,26 @@ function getPlace(id) {
 }
 
 function booking(id, user_name, user_phone) {
-    $.ajax({
-        url: '/payment',
-        method: 'POST',
-        data: {
-            id: id,
-            name: user_name,
-            phone: user_phone
-        },
-        complete: function (response) {
-            var resp = JSON.parse(response.responseText);
-            alert(resp.result);
-            /*if (resp.result === 'true') {
-                alert('Спасибо, ваше место забронировано!');
-            } else {
-                alert('Извините, но это место уже успел кто-то занять!');
-            }*/
-            location.replace("/index.html");
-        }
-    });
+    if (validate() == true) {
+        $.ajax({
+            url: '/payment',
+            method: 'POST',
+            data: {
+                id: id,
+                name: user_name,
+                phone: user_phone
+            },
+            complete: function (response) {
+                var resp = JSON.parse(response.responseText);
+                if (resp.result) {
+                    alert('Спасибо, ваше место забронировано!');
+                } else {
+                    alert('Извините, но это место уже успел кто-то занять!');
+                }
+                location.replace("/index.html");
+            }
+        });
+    } else {
+        false;
+    }
 }

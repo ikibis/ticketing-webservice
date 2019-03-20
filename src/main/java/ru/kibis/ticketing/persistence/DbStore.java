@@ -33,7 +33,8 @@ public class DbStore {
     private void createNewDB() {
         try (Connection connection = SOURCE.getConnection();
              PreparedStatement st = connection.prepareStatement(
-                     "create table if not exists hall ( "
+                     "drop table hall;"
+                             + "create table if not exists hall ( "
                              + "id serial primary key not null, "
                              + "row smallint, "
                              + "place smallint, "
@@ -44,6 +45,16 @@ public class DbStore {
                              + "name varchar(200), "
                              + "phone varchar, "
                              + "place_id smallint);"
+
+                             + "insert into hall(row, place, availability) values (1, 1, 'true');"
+                             + "insert into hall(row, place, availability) values (1, 2, 'true');"
+                             + "insert into hall(row, place, availability) values (1, 3, 'true');"
+                             + "insert into hall(row, place, availability) values (2, 1, 'true');"
+                             + "insert into hall(row, place, availability) values (2, 2, 'true');"
+                             + "insert into hall(row, place, availability) values (2, 3, 'true');"
+                             + "insert into hall(row, place, availability) values (3, 1, 'true');"
+                             + "insert into hall(row, place, availability) values (3, 2, 'true');"
+                             + "insert into hall(row, place, availability) values (3, 3, 'true');"
              )) {
             st.executeUpdate();
         } catch (SQLException e) {
@@ -52,54 +63,42 @@ public class DbStore {
     }
 
     public boolean booking(int placeId, String name, String phone) {
-        boolean result = false;
+        boolean result;
         Savepoint savePoint = null;
         try (Connection connection = SOURCE.getConnection()) {
             connection.setAutoCommit(false);
-            try (PreparedStatement checkStatement = connection.prepareStatement(
-                    "select availability from hall where id = ?;"
+            try (PreparedStatement updateStatement = connection.prepareStatement(
+                    "update hall set availability = false where id = ?;"
             );
                  PreparedStatement insertStatement = connection.prepareStatement(
                          "insert into movie_viewers(name, phone, place_id) values(?, ?, ?);"
-                 );
-                 PreparedStatement updateStatement = connection.prepareStatement(
-                         "update hall set availability = false where id = ?;"
                  )
             ) {
                 savePoint = connection.setSavepoint();
-                checkStatement.setInt(1, placeId);
+
+                updateStatement.setInt(1, placeId);
+                updateStatement.executeUpdate();
 
                 insertStatement.setString(1, name);
                 insertStatement.setString(2, phone);
                 insertStatement.setInt(3, placeId);
                 insertStatement.executeUpdate();
 
-                updateStatement.setInt(1, placeId);
-                updateStatement.executeUpdate();
-
                 connection.commit();
-                ResultSet rs = checkStatement.executeQuery();
-                rs.next();
-                boolean response = rs.getBoolean("availability");
-                System.out.println(response);
-                if (response) {
-                    result = true;
-                    connection.setAutoCommit(true);
-                } else {
-                    result = false;
-                    connection.setAutoCommit(true);
-                    connection.rollback(savePoint);
-                }
+                connection.setAutoCommit(true);
+                result = true;
             } catch (SQLException e) {
                 result = false;
                 try {
-                    connection.setAutoCommit(true);
                     connection.rollback(savePoint);
+                    connection.setAutoCommit(true);
                 } catch (SQLException error) {
                     LOGGER.error(error.getMessage(), error);
                 }
+                LOGGER.error(e.getMessage(), e);
             }
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             result = false;
             LOGGER.error(e.getMessage(), e);
         }

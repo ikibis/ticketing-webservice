@@ -17,7 +17,14 @@ public class ValidateService {
     }
 
     public boolean booking(int placeId, String name, String phone) {
-        return memory.booking(placeId, name, phone);
+        boolean result;
+        System.out.println(memory.getPlaceById(placeId).isAvailable());
+        if (!memory.getPlaceById(placeId).isAvailable()) {
+            result = false;
+        } else {
+            result = memory.booking(placeId, name, phone);
+        }
+        return result;
     }
 
     public List<Hall> findPlaces() {
