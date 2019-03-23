@@ -2,13 +2,20 @@ function validate() {
     var result = true;
     var name = $('#username').val();
     var phone = $('#phone').val();
+    var re = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/;
+    var phoneValidate = (re.test(phone)).valueOf();
     if (name == '') {
         result = false;
-        alert('Please, enter your Name');
+        alert('Пожалуйста, введите Ваше имя');
     }
     if (phone == '') {
         result = false;
-        alert('Please, enter your Phone Number');
+        alert('Пожалуйста, введите Ваш номер телефона');
+    }
+
+    if (phoneValidate != true) {
+        result = false;
+        alert('Номер телефона введен неправильно!');
     }
     return result;
 }

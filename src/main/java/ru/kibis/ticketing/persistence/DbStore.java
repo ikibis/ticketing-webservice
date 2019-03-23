@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.sql.Connection.TRANSACTION_SERIALIZABLE;
+
 public class DbStore {
     private static final Logger LOGGER = LogManager.getLogger(DbStore.class.getName());
     private static final BasicDataSource SOURCE = new BasicDataSource();
@@ -67,38 +69,48 @@ public class DbStore {
         Savepoint savePoint = null;
         try (Connection connection = SOURCE.getConnection()) {
             connection.setAutoCommit(false);
-            try (PreparedStatement updateStatement = connection.prepareStatement(
-                    "update hall set availability = false where id = ?;"
+            connection.setTransactionIsolation(TRANSACTION_SERIALIZABLE);
+            try (PreparedStatement checkStatement = connection.prepareStatement(
+                    "select availability from hall where id = ?;"
             );
+                 PreparedStatement updateStatement = connection.prepareStatement(
+                         "update hall set availability = false where id = ?;"
+                 );
                  PreparedStatement insertStatement = connection.prepareStatement(
                          "insert into movie_viewers(name, phone, place_id) values(?, ?, ?);"
                  )
             ) {
                 savePoint = connection.setSavepoint();
-
-                updateStatement.setInt(1, placeId);
-                updateStatement.executeUpdate();
-
-                insertStatement.setString(1, name);
-                insertStatement.setString(2, phone);
-                insertStatement.setInt(3, placeId);
-                insertStatement.executeUpdate();
-
+                checkStatement.setInt(1, placeId);
+                ResultSet rs = checkStatement.executeQuery();
                 connection.commit();
+                rs.next();
+                if (rs.getBoolean("availability")) {
+                    updateStatement.setInt(1, placeId);
+                    updateStatement.executeUpdate();
+
+                    insertStatement.setString(1, name);
+                    insertStatement.setString(2, phone);
+                    insertStatement.setInt(3, placeId);
+                    insertStatement.executeUpdate();
+
+                    connection.commit();
+                    result = true;
+                } else {
+                    connection.rollback(savePoint);
+                    result = false;
+                }
+                connection.setTransactionIsolation(2);
                 connection.setAutoCommit(true);
-                result = true;
             } catch (SQLException e) {
                 result = false;
-                try {
-                    connection.rollback(savePoint);
-                    connection.setAutoCommit(true);
-                } catch (SQLException error) {
-                    LOGGER.error(error.getMessage(), error);
-                }
+                connection.rollback(savePoint);
+                connection.setTransactionIsolation(2);
                 LOGGER.error(e.getMessage(), e);
+            } finally {
+                connection.setAutoCommit(true);
             }
-        } catch (
-                SQLException e) {
+        } catch (SQLException e) {
             result = false;
             LOGGER.error(e.getMessage(), e);
         }

@@ -18,7 +18,6 @@ public class ValidateService {
 
     public boolean booking(int placeId, String name, String phone) {
         boolean result;
-        System.out.println(memory.getPlaceById(placeId).isAvailable());
         if (!memory.getPlaceById(placeId).isAvailable()) {
             result = false;
         } else {

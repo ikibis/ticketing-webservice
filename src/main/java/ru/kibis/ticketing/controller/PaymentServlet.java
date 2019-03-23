@@ -17,16 +17,11 @@ public class PaymentServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int id = Integer.valueOf(req.getParameter("id"));
-        ObjectMapper mapper = new ObjectMapper();
         Hall place = validateService.getPlaceById(id);
         JSONObject json = new JSONObject();
         json.put("row", place.getRow());
         json.put("place", place.getPlace());
-        String jsonInString = mapper.writeValueAsString(json);
-        resp.setContentType("text/json");
-        PrintWriter writer = new PrintWriter(resp.getOutputStream());
-        writer.append(jsonInString);
-        writer.flush();
+        this.send(json, resp);
     }
 
     @Override
@@ -34,16 +29,18 @@ public class PaymentServlet extends HttpServlet {
         int placeId = Integer.valueOf(req.getParameter("id"));
         String name = req.getParameter("name");
         String phone = req.getParameter("phone");
-        ObjectMapper mapper = new ObjectMapper();
         boolean result = validateService.booking(placeId, name, phone);
-        System.out.println(result);
         JSONObject json = new JSONObject();
         json.put("result", result);
+        this.send(json, resp);
+    }
+
+    private void send(JSONObject json, HttpServletResponse resp) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(json);
         resp.setContentType("text/json");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
         writer.append(jsonInString);
         writer.flush();
-
     }
 }
