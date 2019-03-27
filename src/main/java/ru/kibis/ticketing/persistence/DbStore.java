@@ -70,9 +70,9 @@ public class DbStore {
         try (Connection connection = SOURCE.getConnection()) {
             connection.setAutoCommit(false);
             connection.setTransactionIsolation(TRANSACTION_SERIALIZABLE);
-            try (PreparedStatement checkStatement = connection.prepareStatement(
-                    "select availability from hall where id = ?;"
-            );
+            String query = "select availability from hall where id = " + placeId + "for update";
+            try (Statement checkStatement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
                  PreparedStatement updateStatement = connection.prepareStatement(
                          "update hall set availability = false where id = ?;"
                  );
@@ -81,8 +81,7 @@ public class DbStore {
                  )
             ) {
                 savePoint = connection.setSavepoint();
-                checkStatement.setInt(1, placeId);
-                ResultSet rs = checkStatement.executeQuery();
+                ResultSet rs = checkStatement.executeQuery(query);
                 connection.commit();
                 rs.next();
                 if (rs.getBoolean("availability")) {
