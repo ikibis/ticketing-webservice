@@ -11,9 +11,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+
+/**
+ * Сервлет для оплаты и бронирования места в зале
+ */
 public class PaymentServlet extends HttpServlet {
+    /**
+     * Сервис валидации
+     */
     private final ValidateService validateService = ValidateService.getInstance();
 
+    /**
+     * Метод GET извлекает из HTTP запроса параметр id места в зале,
+     * вызывает getPlaceById(int id) сервиса валидации, для получения объекта "место в зале",
+     * в качестве JSON объекта передает в ответ номер места в ряду и номер ряда.
+     *
+     * @param req  HTTP запрос
+     * @param resp ответ
+     * @throws IOException
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int id = Integer.valueOf(req.getParameter("id"));
@@ -24,6 +40,15 @@ public class PaymentServlet extends HttpServlet {
         this.send(json, resp);
     }
 
+    /**
+     * Метод POST извлекает из HTTP запроса параметр id места в зале,
+     * вызывает booking(placeId, name, phone) сервиса валидации, для получения получения подтверждения о бронировании,
+     * в качестве JSON объекта передает в ответ true или false как результат бронирования.
+     *
+     * @param req  HTTP запрос
+     * @param resp ответ
+     * @throws IOException
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int placeId = Integer.valueOf(req.getParameter("id"));
@@ -35,6 +60,13 @@ public class PaymentServlet extends HttpServlet {
         this.send(json, resp);
     }
 
+    /**
+     * Метод для отправки ответа в AJAX, использует ObjectMapper
+     *
+     * @param json JSON объект
+     * @param resp ответ
+     * @throws IOException
+     */
     private void send(JSONObject json, HttpServletResponse resp) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writeValueAsString(json);

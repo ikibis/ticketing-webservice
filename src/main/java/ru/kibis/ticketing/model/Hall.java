@@ -1,11 +1,22 @@
 package ru.kibis.ticketing.model;
 
+/**
+ * Класс зал, информация о местах в зале
+ */
 public class Hall {
     private int placeId;
     private int row;
     private int place;
     private boolean available;
 
+    /**
+     * Конструктор для места в зале
+     *
+     * @param placeId   id места в зале
+     * @param row       номер ряда в зале
+     * @param place     номер места в ряду
+     * @param available Место доступно для бронирования или нет
+     */
     public Hall(int placeId, int row, int place, boolean available) {
         this.placeId = placeId;
         this.row = row;

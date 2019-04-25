@@ -13,9 +13,25 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+/**
+ * Сервлет поиска мест в зале
+ */
 public class HallServlet extends HttpServlet {
+
+    /**
+     * Сервис валидации
+     */
     private final ValidateService validateService = ValidateService.getInstance();
 
+    /**
+     * Метод POST, вызывает findPlaces() сервиса валидации, для получения List<Hall> всех объектов "место в зале",
+     * В качестве ответа передает JSON массив содежащий id места в зале, номер ряда,
+     * номер места в ряду, и его статус занято или нет.
+     *
+     * @param req  HTTP запрос
+     * @param resp ответ
+     * @throws IOException
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

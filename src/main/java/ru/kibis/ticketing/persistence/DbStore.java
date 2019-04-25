@@ -12,11 +12,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.sql.Connection.TRANSACTION_SERIALIZABLE;
 
+/**
+ * Класс хранилище.
+ * Хранение полей объектов Hall осуществляется в БД PostgreSQL.
+ */
 public class DbStore {
     private static final Logger LOGGER = LogManager.getLogger(DbStore.class.getName());
     private static final BasicDataSource SOURCE = new BasicDataSource();
     private static final DbStore INSTANCE = new DbStore();
 
+    /**
+     * Конструктор для объекта DbStore.
+     * Используется в методе getInstance данного класса.
+     * Задаются настройки для подключения к БД.
+     * Используется JDBC и BasicDataSource.
+     */
     private DbStore() {
         SOURCE.setUrl("jdbc:postgresql://127.0.0.1:5432/tracker");
         SOURCE.setUsername("postgres");
@@ -27,11 +37,19 @@ public class DbStore {
         SOURCE.setMaxOpenPreparedStatements(100);
     }
 
+    /**
+     * Метод используется для доступа к хранилущу из слоя валидации.
+     *
+     * @return Объект DbStore
+     */
     public static DbStore getInstance() {
         INSTANCE.createNewDB();
         return INSTANCE;
     }
 
+    /**
+     * Создает новую таблицу в БД, если она еще не создана.
+     */
     private void createNewDB() {
         try (Connection connection = SOURCE.getConnection();
              PreparedStatement st = connection.prepareStatement(
@@ -64,6 +82,18 @@ public class DbStore {
         }
     }
 
+    /**
+     * Метод бронирования места в зале.
+     * В ответ возвращает true или false.
+     * использует уровень изоляции TRANSACTION_SERIALIZABLE,
+     * для исключения ошибок чтения и записи при параллельных транзакциях.
+     * В результате успешного бронирования изменяет параметр "availability" на false
+     *
+     * @param placeId айди места в зале
+     * @param name имя пользователя
+     * @param phone номер телефона пользователя
+     * @return true или false
+     */
     public boolean booking(int placeId, String name, String phone) {
         boolean result;
         Savepoint savePoint = null;

@@ -1,10 +1,19 @@
 package ru.kibis.ticketing.model;
 
+/**
+ * Класс пользователь
+ */
 public class User {
     private String name;
     private int phoneNumber;
     private int placeId;
 
+    /**
+     * Конструктор для создания пользователя
+     * @param name имя пользователя
+     * @param phoneNumber номер телефона пользователя
+     * @param placeId айди места в зале, забронированное пользователем
+     */
     public User(String name, int phoneNumber, int placeId) {
         this.name = name;
         this.phoneNumber = phoneNumber;
